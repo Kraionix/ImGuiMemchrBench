@@ -1,0 +1,7 @@
+{
+		"$schema": "bench_config_schema.json",
+    "value_range": {
+        "start": 1048576,
+        "limit": 1073741824
+    }
+}
