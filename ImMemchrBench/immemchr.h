@@ -95,6 +95,7 @@ const void* ImMemchrAVX512(const void* buf, int val, size_t count)
   return nullptr;
 }
 
+
 const void* ImMemchrAVX2_UNROLL_PREFETCH(const void* buf, int val, size_t count)
 {
   const size_t SIMD_LENGTH = 32;
@@ -328,6 +329,202 @@ const void* ImMemchrAVX2(const void* buf, int val, size_t count)
   return nullptr;
 }
 
+
+const void* ImMemchrSSE4_2_UNROLL_PREFETCH(const void* buf, int val, size_t count)
+{
+  const size_t SIMD_LENGTH = 16;
+  const size_t SIMD_LENGTH_MASK = SIMD_LENGTH - 1;
+
+  const unsigned char* ptr = (const unsigned char*)buf;
+  const unsigned char* end = ptr + count;
+  const unsigned char* align_end = end - SIMD_LENGTH;
+  const unsigned char ch = (const unsigned char)val;
+
+  if (ptr <= align_end)
+  {
+    const __m128i target = _mm_set1_epi8(ch);
+
+    if ((uintptr_t)ptr & SIMD_LENGTH_MASK)
+    {
+      __m128i chunk = _mm_lddqu_si128((const __m128i*)ptr);
+      int index = _mm_cmpistri(chunk, target, _SIDD_CMP_EQUAL_EACH);
+
+      if (index < SIMD_LENGTH)
+        return ptr + index;
+
+      ptr = (const unsigned char*)(((uintptr_t)ptr + SIMD_LENGTH_MASK) & ~SIMD_LENGTH_MASK);
+    }
+
+    for (; ptr <= align_end; ptr += SIMD_LENGTH * 2)
+    {
+      __m128i chunk1 = _mm_load_si128((const __m128i*)ptr);
+      __m128i chunk2 = _mm_load_si128((const __m128i*)(ptr + SIMD_LENGTH));
+
+      int index1 = _mm_cmpistri(chunk1, target, _SIDD_CMP_EQUAL_EACH);
+      int index2 = _mm_cmpistri(chunk2, target, _SIDD_CMP_EQUAL_EACH);
+
+      if (index1 < SIMD_LENGTH)
+        return ptr + index1;
+
+      if (index2 < SIMD_LENGTH)
+        return ptr + SIMD_LENGTH + index2;
+
+      if (ptr <= end - IMGUI_PREFECTH_LENGTH)
+        _mm_prefetch((const char*)(ptr + IMGUI_PREFECTH_LENGTH), _MM_HINT_T0);
+    }
+  }
+
+  for (; ptr < end; ptr++)
+  {
+    if (*ptr == ch)
+      return (const void*)(ptr);
+  }
+
+  return nullptr;
+}
+
+const void* ImMemchrSSE4_2_UNROLL(const void* buf, int val, size_t count)
+{
+  const size_t SIMD_LENGTH = 16;
+  const size_t SIMD_LENGTH_MASK = SIMD_LENGTH - 1;
+
+  const unsigned char* ptr = (const unsigned char*)buf;
+  const unsigned char* end = ptr + count;
+  const unsigned char* align_end = end - SIMD_LENGTH;
+  const unsigned char ch = (const unsigned char)val;
+
+  if (ptr <= align_end)
+  {
+    const __m128i target = _mm_set1_epi8(ch);
+
+    if ((uintptr_t)ptr & SIMD_LENGTH_MASK)
+    {
+      __m128i chunk = _mm_lddqu_si128((const __m128i*)ptr);
+      int index = _mm_cmpistri(chunk, target, _SIDD_CMP_EQUAL_EACH);
+
+      if (index < SIMD_LENGTH)
+        return ptr + index;
+
+      ptr = (const unsigned char*)(((uintptr_t)ptr + SIMD_LENGTH_MASK) & ~SIMD_LENGTH_MASK);
+    }
+
+    for (; ptr <= align_end; ptr += SIMD_LENGTH * 2)
+    {
+      __m128i chunk1 = _mm_load_si128((const __m128i*)ptr);
+      __m128i chunk2 = _mm_load_si128((const __m128i*)(ptr + SIMD_LENGTH));
+
+      int index1 = _mm_cmpistri(chunk1, target, _SIDD_CMP_EQUAL_EACH);
+      int index2 = _mm_cmpistri(chunk2, target, _SIDD_CMP_EQUAL_EACH);
+
+      if (index1 < SIMD_LENGTH)
+        return ptr + index1;
+
+      if (index2 < SIMD_LENGTH)
+        return ptr + SIMD_LENGTH + index2;
+    }
+  }
+
+  for (; ptr < end; ptr++)
+  {
+    if (*ptr == ch)
+      return (const void*)(ptr);
+  }
+
+  return nullptr;
+}
+
+const void* ImMemchrSSE4_2_PREFETCH(const void* buf, int val, size_t count)
+{
+  const size_t SIMD_LENGTH = 16;
+  const size_t SIMD_LENGTH_MASK = SIMD_LENGTH - 1;
+
+  const unsigned char* ptr = (const unsigned char*)buf;
+  const unsigned char* end = ptr + count;
+  const unsigned char* align_end = end - SIMD_LENGTH;
+  const unsigned char ch = (const unsigned char)val;
+
+  if (ptr <= align_end)
+  {
+    const __m128i target = _mm_set1_epi8(ch);
+
+    if ((uintptr_t)ptr & SIMD_LENGTH_MASK)
+    {
+      __m128i chunk = _mm_lddqu_si128((const __m128i*)ptr);
+      int index = _mm_cmpistri(chunk, target, _SIDD_CMP_EQUAL_EACH);
+
+      if (index < SIMD_LENGTH)
+        return ptr + index;
+
+      ptr = (const unsigned char*)(((uintptr_t)ptr + SIMD_LENGTH_MASK) & ~SIMD_LENGTH_MASK);
+    }
+
+    for (; ptr <= align_end; ptr += SIMD_LENGTH)
+    {
+      __m128i chunk = _mm_load_si128((const __m128i*)ptr);
+      int index = _mm_cmpistri(chunk, target, _SIDD_CMP_EQUAL_EACH);
+
+      if (index < SIMD_LENGTH)
+        return ptr + index;
+
+      if (ptr <= end - IMGUI_PREFECTH_LENGTH)
+        _mm_prefetch((const char*)(ptr + IMGUI_PREFECTH_LENGTH), _MM_HINT_T0);
+    }
+  }
+
+  for (; ptr < end; ptr++)
+  {
+    if (*ptr == ch)
+      return (const void*)(ptr);
+  }
+
+  return nullptr;
+}
+
+const void* ImMemchrSSE4_2(const void* buf, int val, size_t count)
+{
+  const size_t SIMD_LENGTH = 16;
+  const size_t SIMD_LENGTH_MASK = SIMD_LENGTH - 1;
+
+  const unsigned char* ptr = (const unsigned char*)buf;
+  const unsigned char* end = ptr + count;
+  const unsigned char* align_end = end - SIMD_LENGTH;
+  const unsigned char ch = (const unsigned char)val;
+
+  if (ptr <= align_end)
+  {
+    const __m128i target = _mm_set1_epi8(ch);
+
+    if ((uintptr_t)ptr & SIMD_LENGTH_MASK)
+    {
+      __m128i chunk = _mm_lddqu_si128((const __m128i*)ptr);
+      int index = _mm_cmpistri(chunk, target, _SIDD_CMP_EQUAL_EACH);
+
+      if (index < SIMD_LENGTH)
+        return ptr + index;
+
+      ptr = (const unsigned char*)(((uintptr_t)ptr + SIMD_LENGTH_MASK) & ~SIMD_LENGTH_MASK);
+    }
+
+    for (; ptr <= align_end; ptr += SIMD_LENGTH)
+    {
+      __m128i chunk = _mm_load_si128((const __m128i*)ptr);
+      int index = _mm_cmpistri(chunk, target, _SIDD_CMP_EQUAL_EACH);
+
+      if (index < SIMD_LENGTH)
+        return ptr + index;
+    }
+  }
+
+  for (; ptr < end; ptr++)
+  {
+    if (*ptr == ch)
+      return (const void*)(ptr);
+  }
+
+  return nullptr;
+}
+
+
 const void* ImMemchrSSE_UNROLL_PREFETCH(const void* buf, int val, size_t count)
 {
   const size_t SIMD_LENGTH = 16;
@@ -422,6 +619,8 @@ const void* ImMemchrSSE_UNROLL(const void* buf, int val, size_t count)
     {
       __m128i chunk = _mm_loadu_si128((const __m128i*)ptr);
       int mask = _mm_movemask_epi8(_mm_cmpeq_epi8(chunk, target));
+
+      
 
       if (mask)
         return (const void*)(ptr + _tzcnt_u32(mask));

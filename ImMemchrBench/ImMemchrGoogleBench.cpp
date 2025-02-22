@@ -151,31 +151,47 @@ static void BM_AllLines(benchmark::State& state)
   state.SetBytesProcessed(int64_t(state.iterations()) * int64_t(size));
 }
 
-auto BM_AllLines_AVX512_PREFETCH      = BM_AllLines<ImMemchrAVX512_PREFETCH>;
-auto BM_AllLines_AVX512               = BM_AllLines<ImMemchrAVX512>;
-auto BM_AllLines_AVX2_UNROLL_PREFETCH = BM_AllLines<ImMemchrAVX2_UNROLL_PREFETCH>;
-auto BM_AllLines_AVX2_UNROLL          = BM_AllLines<ImMemchrAVX2_UNROLL>;
-auto BM_AllLines_AVX2_PREFETCH        = BM_AllLines<ImMemchrAVX2_PREFETCH>;
-auto BM_AllLines_AVX2                 = BM_AllLines<ImMemchrAVX2>;
-auto BM_AllLines_SSE_UNROLL_PREFETCH  = BM_AllLines<ImMemchrSSE_UNROLL_PREFETCH>;
-auto BM_AllLines_SSE_UNROLL           = BM_AllLines<ImMemchrSSE_UNROLL>;
-auto BM_AllLines_SSE_PREFETCH         = BM_AllLines<ImMemchrSSE_PREFETCH>;
-auto BM_AllLines_SSE                  = BM_AllLines<ImMemchrSSE>;
-auto BM_AllLines_CSTD                 = BM_AllLines<ImMemchrCSTD>;
+auto BM_AllLines_AVX512_PREFETCH        = BM_AllLines<ImMemchrAVX512_PREFETCH>;
+auto BM_AllLines_AVX512                 = BM_AllLines<ImMemchrAVX512>;
+
+auto BM_AllLines_AVX2_UNROLL_PREFETCH   = BM_AllLines<ImMemchrAVX2_UNROLL_PREFETCH>;
+auto BM_AllLines_AVX2_UNROLL            = BM_AllLines<ImMemchrAVX2_UNROLL>;
+auto BM_AllLines_AVX2_PREFETCH          = BM_AllLines<ImMemchrAVX2_PREFETCH>;
+auto BM_AllLines_AVX2                   = BM_AllLines<ImMemchrAVX2>;
+
+auto BM_AllLines_SSE4_2_UNROLL_PREFETCH = BM_AllLines<ImMemchrSSE4_2_UNROLL_PREFETCH>;
+auto BM_AllLines_SSE4_2_UNROLL          = BM_AllLines<ImMemchrSSE4_2_UNROLL>;
+auto BM_AllLines_SSE4_2_PREFETCH        = BM_AllLines<ImMemchrSSE4_2_PREFETCH>;
+auto BM_AllLines_SSE4_2                 = BM_AllLines<ImMemchrSSE4_2>;
+
+auto BM_AllLines_SSE_UNROLL_PREFETCH    = BM_AllLines<ImMemchrSSE_UNROLL_PREFETCH>;
+auto BM_AllLines_SSE_UNROLL             = BM_AllLines<ImMemchrSSE_UNROLL>;
+auto BM_AllLines_SSE_PREFETCH           = BM_AllLines<ImMemchrSSE_PREFETCH>;
+auto BM_AllLines_SSE                    = BM_AllLines<ImMemchrSSE>;
+
+auto BM_AllLines_CSTD                   = BM_AllLines<ImMemchrCSTD>;
 
 static fs::path path = fs::current_path() / "bench_config.json";
 static benchcfg::ConfigLoader config_loader(path);
 
 BENCHMARK_FROM_CONFIG_LOADER(config_loader, BM_AllLines_AVX512_PREFETCH, "ImMemchr_AVX512_PREFETCH")
 BENCHMARK_FROM_CONFIG_LOADER(config_loader, BM_AllLines_AVX512, "ImMemchr_AVX512")
+
 BENCHMARK_FROM_CONFIG_LOADER(config_loader, BM_AllLines_AVX2_UNROLL_PREFETCH, "ImMemchr_AVX2_UNROLL_PREFETCH")
 BENCHMARK_FROM_CONFIG_LOADER(config_loader, BM_AllLines_AVX2_UNROLL, "ImMemchr_AVX2_UNROLL")
 BENCHMARK_FROM_CONFIG_LOADER(config_loader, BM_AllLines_AVX2_PREFETCH, "ImMemchr_AVX2_PREFETCH")
 BENCHMARK_FROM_CONFIG_LOADER(config_loader, BM_AllLines_AVX2, "ImMemchr_AVX2")
+
+BENCHMARK_FROM_CONFIG_LOADER(config_loader, BM_AllLines_SSE4_2_UNROLL_PREFETCH, "ImMemchr_SSE4_2_UNROLL_PREFETCH")
+BENCHMARK_FROM_CONFIG_LOADER(config_loader, BM_AllLines_SSE4_2_UNROLL, "ImMemchr_SSE4_2_UNROLL")
+BENCHMARK_FROM_CONFIG_LOADER(config_loader, BM_AllLines_SSE4_2_PREFETCH, "ImMemchr_SSE4_2_PREFETCH")
+BENCHMARK_FROM_CONFIG_LOADER(config_loader, BM_AllLines_SSE4_2, "ImMemchr_SSE4_2")
+
 BENCHMARK_FROM_CONFIG_LOADER(config_loader, BM_AllLines_SSE_UNROLL_PREFETCH, "ImMemchr_SSE_UNROLL_PREFETCH")
 BENCHMARK_FROM_CONFIG_LOADER(config_loader, BM_AllLines_SSE_UNROLL, "ImMemchr_SSE_UNROLL")
 BENCHMARK_FROM_CONFIG_LOADER(config_loader, BM_AllLines_SSE_PREFETCH,  "ImMemchr_SSE_PREFETCH")
 BENCHMARK_FROM_CONFIG_LOADER(config_loader, BM_AllLines_SSE, "ImMemchr_SSE")
+
 BENCHMARK_FROM_CONFIG_LOADER(config_loader, BM_AllLines_CSTD, "ImMemchr_CSTD")
 
 BENCHMARK_MAIN();
