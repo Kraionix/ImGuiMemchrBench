@@ -93,12 +93,9 @@ private:
     //  std::for_each(std::execution::par, view.begin(), view.end(), l);
     //}
 
-    for (size_t i = 0; i < lined_str.size(); i += line_size * 4)
+    for (size_t i = 0; i < lined_str.size(); i+= line_size)
     {
       lined_str[i] = '\n';
-      lined_str[i + line_size] = '\n';
-      lined_str[i + line_size * 2] = '\n';
-      lined_str[i + line_size * 3] = '\n';
     }
   }
 
